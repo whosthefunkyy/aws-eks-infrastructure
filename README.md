@@ -1,3 +1,4 @@
+```mermaid
 graph TD
     %% Block Styling
     classDef tf fill:#5C4EE5,stroke:#fff,stroke-width:2px,color:#fff;
@@ -33,6 +34,8 @@ graph TD
 
     %% Style Class Binding
     class TF tf;
+```
+
 
 # Terraform EKS Infrastructure
 
