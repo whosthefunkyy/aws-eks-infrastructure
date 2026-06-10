@@ -75,3 +75,20 @@ Application deployment repository:
 helm-test
 
 This repository provides the infrastructure layer used by the application deployment project.
+
+## Destroy Order
+
+Before running Terraform destroy, make sure all Kubernetes applications and ingress resources are removed.
+
+Example:
+
+kubectl delete ingress --all -A
+
+or remove application releases:
+
+helm uninstall my-app-chart -n go-api-ns
+
+Reason:
+
+AWS Load Balancer Controller creates AWS Application Load Balancers outside Terraform state. Existing ALBs keep subnet dependencies active and may prevent VPC resources from being destroyed successfully.
+
