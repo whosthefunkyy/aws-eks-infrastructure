@@ -10,31 +10,31 @@ graph LR
     subgraph Management [Automation & State]
         TF[Terraform CLI]:::tf
         subgraph State_Management [State Management]
-            TF_State[Terraform State]:::storage -->|Stores & Locks State| S3[S3 Backend]:::storage
+            TF_State[Terraform State]:::storage -->|Pushes State to| S3[S3 Backend]:::storage
         end
     end
 
     %% Main Flow to Infrastructure
-    TF -->|Deploys| VPC[AWS VPC]:::aws
+    TF -->|Provisions| VPC[AWS VPC]:::aws
 
     %% Cloud Infrastructure
     subgraph AWS_Cloud [AWS Cloud Infrastructure]
-        VPC -->|Hosts| EKS[Amazon EKS Control Plane]:::aws
+        VPC -->|Isolates| EKS[Amazon EKS Control Plane]:::aws
         
         subgraph EKS_Cluster [EKS Cluster Internals]
-            EKS --> OIDC[OIDC Provider]:::aws
-            OIDC -->|Enables| IRSA[IRSA: IAM Roles]:::aws
-            IRSA -->|Grants Perms| LBC[AWS Load Balancer Controller]:::k8s
+            EKS -->|Manages| MNG[Managed Node Group]:::aws
+            EKS -->|Configures| OIDC[OIDC Provider]:::aws
+            OIDC -->|Authenticates| IRSA[IRSA: IAM Roles]:::aws
             
-            EKS --> MNG[Managed Node Group]:::aws
-            MNG -->|Runs Pods| LBC
+            MNG -->|Hosts Pods for| LBC[AWS Load Balancer Controller]:::k8s
+            IRSA -->|Authorizes| LBC
         end
     end
 
-    %% Right Side: Traffic Flow
-    LBC -->|Provisions| ALB[Application Load Balancer]:::aws
-    ALB -->|Routes via| Ingress[Kubernetes Ingress]:::k8s
-    Ingress -->|Forwards to| Pods[Application Pods]:::k8s
+    %% Right Side: Infrastructure Management
+    LBC -->|Creates & Configures| ALB[Application Load Balancer]:::aws
+    ALB -->|Forwards Traffic to| Ingress[Kubernetes Ingress]:::k8s
+    Ingress -->|Routes to| Pods[Application Pods]:::k8s
 ```
 
 
