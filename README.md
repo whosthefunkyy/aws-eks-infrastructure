@@ -17,17 +17,7 @@ Infrastructure as Code project for provisioning an AWS EKS cluster using Terrafo
 
 ## Architecture
 
-AWS
-├── VPC
-├── Public Subnets
-├── Private Subnets
-├── NAT Gateway
-└── EKS
-├── Managed Node Group
-├── CoreDNS
-├── kube-proxy
-├── VPC CNI
-└── AWS Load Balancer Controller
+AWS: VPC, Public Subnets, Private Subnets, NAT Gateway, EKS, Managed Node Group, CoreDNS, kube-proxy, VPC CNI, AWS Load Balancer Controller
 
 ## Usage
 
