@@ -1,40 +1,42 @@
 ```mermaid
-graph TD
-    %% Block Styling
+graph LR
+    %% Base Styling
     classDef tf fill:#5C4EE5,stroke:#fff,stroke-width:2px,color:#fff;
     classDef aws fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:#232F3E;
     classDef k8s fill:#326CE5,stroke:#fff,stroke-width:2px,color:#fff;
     classDef storage fill:#3F8624,stroke:#fff,stroke-width:2px,color:#fff;
 
-    %% State Management
-    subgraph State_Management [State Management]
-        TF_State[Terraform State]:::storage -->|Stores & Locks State| S3[S3 Backend]:::storage
+    %% Left Side: Management & Automation
+    subgraph Management [Automation & State]
+        TF[Terraform CLI]:::tf
+        subgraph State_Management [State Management]
+            TF_State[Terraform State]:::storage -->|Stores & Locks State| S3[S3 Backend]:::storage
+        end
     end
 
-    %% Main Automation Flow
-    TF[Terraform CLI]:::tf -->|Deploys Infrastructure| VPC[AWS VPC]:::aws
+    %% Main Flow to Infrastructure
+    TF -->|Deploys| VPC[AWS VPC]:::aws
 
+    %% Cloud Infrastructure
     subgraph AWS_Cloud [AWS Cloud Infrastructure]
-        VPC -->|Hosts Cluster| EKS[Amazon EKS Control Plane]:::aws
+        VPC -->|Hosts| EKS[Amazon EKS Control Plane]:::aws
         
         subgraph EKS_Cluster [EKS Cluster Internals]
-            EKS --> MNG[Managed Node Group]:::aws
             EKS --> OIDC[OIDC Provider]:::aws
-            OIDC -->|Enables| IRSA[IRSA <br> IAM Roles for Service Accounts]:::aws
+            OIDC -->|Enables| IRSA[IRSA: IAM Roles]:::aws
+            IRSA -->|Grants Perms| LBC[AWS Load Balancer Controller]:::k8s
             
-            IRSA -->|Grants Permissions to| LBC[AWS Load Balancer Controller]:::k8s
+            EKS --> MNG[Managed Node Group]:::aws
             MNG -->|Runs Pods| LBC
         end
     end
 
-    %% Network Traffic & Ingress
-    LBC -->|Provisions & Manages| ALB[Application Load Balancer]:::aws
-    ALB -->|Routes Traffic via| Ingress[Kubernetes Ingress]:::k8s
+    %% Right Side: Traffic Flow
+    LBC -->|Provisions| ALB[Application Load Balancer]:::aws
+    ALB -->|Routes via| Ingress[Kubernetes Ingress]:::k8s
     Ingress -->|Forwards to| Pods[Application Pods]:::k8s
-
-    %% Style Class Binding
-    class TF tf;
 ```
+
 
 
 # Terraform EKS Infrastructure
